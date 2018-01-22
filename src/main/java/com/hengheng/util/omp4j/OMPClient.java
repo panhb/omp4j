@@ -5,6 +5,7 @@ import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
 import com.hengheng.util.omp4j.model.ExcuteModel;
 import com.hengheng.util.omp4j.model.request.base.BaseRequest;
 import com.hengheng.util.omp4j.model.request.module.config.GetConfigsRequest;
+import com.hengheng.util.omp4j.model.request.module.portlist.GetPortListsRequest;
 import com.hengheng.util.omp4j.model.request.module.report.GetReportFormatsRequest;
 import com.hengheng.util.omp4j.model.request.module.report.GetReportsRequest;
 import com.hengheng.util.omp4j.model.request.module.result.GetResultsRequest;
@@ -15,6 +16,7 @@ import com.hengheng.util.omp4j.model.request.module.target.GetTargetsRequest;
 import com.hengheng.util.omp4j.model.request.module.target.ModifyTargetRequest;
 import com.hengheng.util.omp4j.model.request.module.task.*;
 import com.hengheng.util.omp4j.model.response.module.config.GetConfigsResponse;
+import com.hengheng.util.omp4j.model.response.module.protlist.GetPortListsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportFormatsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportsResponse;
 import com.hengheng.util.omp4j.model.response.module.result.GetResultsResponse;
@@ -115,6 +117,10 @@ public class OMPClient {
 
     public GetReportsResponse getReports(GetReportsRequest getReportsRequest) throws OmpUtilsException {
         return excute(getReportsRequest,true,GetReportsResponse.class);
+    }
+
+    public GetPortListsResponse getPortLists(GetPortListsRequest getPortListsRequest) throws OmpUtilsException {
+        return excute(getPortListsRequest,true,GetPortListsResponse.class);
     }
 
     private <T> T excute(BaseRequest baseRequest,Class<T> tClass) throws OmpUtilsException {

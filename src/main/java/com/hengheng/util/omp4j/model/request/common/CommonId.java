@@ -1,4 +1,4 @@
-package com.hengheng.util.omp4j.model.request.module.task.common;
+package com.hengheng.util.omp4j.model.request.common;
 
 import com.hengheng.util.omp4j.model.base.BaseModel;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;

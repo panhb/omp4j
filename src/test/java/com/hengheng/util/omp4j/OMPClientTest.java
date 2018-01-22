@@ -5,14 +5,16 @@ import com.hengheng.util.omp4j.model.ExcuteModel;
 import com.hengheng.util.omp4j.model.request.filter.*;
 import com.hengheng.util.omp4j.model.request.filter.base.BaseFilter;
 import com.hengheng.util.omp4j.model.request.module.config.GetConfigsRequest;
+import com.hengheng.util.omp4j.model.request.module.portlist.GetPortListsRequest;
 import com.hengheng.util.omp4j.model.request.module.report.GetReportFormatsRequest;
 import com.hengheng.util.omp4j.model.request.module.report.GetReportsRequest;
 import com.hengheng.util.omp4j.model.request.module.result.GetResultsRequest;
 import com.hengheng.util.omp4j.model.request.module.scanner.GetScannersRequest;
 import com.hengheng.util.omp4j.model.request.module.target.GetTargetsRequest;
 import com.hengheng.util.omp4j.model.request.module.task.*;
-import com.hengheng.util.omp4j.model.request.module.task.common.CommonId;
+import com.hengheng.util.omp4j.model.request.common.CommonId;
 import com.hengheng.util.omp4j.model.response.module.config.GetConfigsResponse;
+import com.hengheng.util.omp4j.model.response.module.protlist.GetPortListsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportFormatsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportsResponse;
 import com.hengheng.util.omp4j.model.response.module.result.GetResultsResponse;
@@ -41,7 +43,10 @@ public class OMPClientTest {
         excuteModel.setUsername("admin");
         excuteModel.setPassword("admin");
 
-        ompClient = new OMPClient(excuteModel,OMPClient.CMD);
+
+
+//        ompClient = new OMPClient(excuteModel,OMPClient.CMD);
+        ompClient = new OMPClient(excuteModel,OMPClient.SSH);
     }
 
     @Test
@@ -179,6 +184,12 @@ public class OMPClientTest {
         ompClient.getExcuteModel().setSshSleepSpec(2000L);
         GetReportsResponse getReportsResponse = ompClient.getReports(getReportsRequest);
         log.info(JSON.toJSONString(getReportsResponse));
+    }
+
+    @Test
+    public void getPortListsTest() throws Exception{
+        GetPortListsResponse getPortListsResponse = ompClient.getPortLists(new GetPortListsRequest());
+        log.info(JSON.toJSONString(getPortListsResponse));
     }
 
     private void initBaseFilter(BaseFilter baseFilter){

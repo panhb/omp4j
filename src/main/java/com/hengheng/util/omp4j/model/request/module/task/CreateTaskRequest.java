@@ -1,7 +1,7 @@
 package com.hengheng.util.omp4j.model.request.module.task;
 
 import com.hengheng.util.omp4j.model.request.base.BaseRequest;
-import com.hengheng.util.omp4j.model.request.module.task.common.CommonId;
+import com.hengheng.util.omp4j.model.request.common.CommonId;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Data;
 
