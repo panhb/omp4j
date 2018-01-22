@@ -9,26 +9,27 @@ import com.hengheng.util.omp4j.model.request.module.report.GetReportFormatsReque
 import com.hengheng.util.omp4j.model.request.module.report.GetReportsRequest;
 import com.hengheng.util.omp4j.model.request.module.result.GetResultsRequest;
 import com.hengheng.util.omp4j.model.request.module.scanner.GetScannersRequest;
+import com.hengheng.util.omp4j.model.request.module.target.CreateTargetRequest;
+import com.hengheng.util.omp4j.model.request.module.target.DeleteTargetRequest;
 import com.hengheng.util.omp4j.model.request.module.target.GetTargetsRequest;
+import com.hengheng.util.omp4j.model.request.module.target.ModifyTargetRequest;
 import com.hengheng.util.omp4j.model.request.module.task.*;
 import com.hengheng.util.omp4j.model.response.module.config.GetConfigsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportFormatsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportsResponse;
 import com.hengheng.util.omp4j.model.response.module.result.GetResultsResponse;
 import com.hengheng.util.omp4j.model.response.module.scanner.GetScannersResponse;
+import com.hengheng.util.omp4j.model.response.module.target.CreateTargetResponse;
+import com.hengheng.util.omp4j.model.response.module.target.DeleteTargetResponse;
 import com.hengheng.util.omp4j.model.response.module.target.GetTargetsResponse;
+import com.hengheng.util.omp4j.model.response.module.target.ModifyTargetResponse;
 import com.hengheng.util.omp4j.model.response.module.task.*;
 import com.hengheng.util.omp4j.service.ExcuteCmd;
 import com.hengheng.util.omp4j.service.ExcuteCmdFactory;
-import com.hengheng.util.omp4j.utils.CommandUtils;
 import com.hengheng.util.omp4j.utils.RefUtils;
 import com.hengheng.util.omp4j.utils.XmlUtils;
 import com.xiaoleilu.hutool.log.Log;
 import com.xiaoleilu.hutool.log.LogFactory;
-import com.xiaoleilu.hutool.util.StrUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author panhb
@@ -56,12 +57,24 @@ public class OMPClient {
         return excute(createTaskRequest,CreateTaskResponse.class);
     }
 
+    public CreateTargetResponse createTarget(CreateTargetRequest createTargetRequest) throws OmpUtilsException {
+        return excute(createTargetRequest,CreateTargetResponse.class);
+    }
+
     public ModifyTaskResponse modifyTask(ModifyTaskRequest modifyTaskRequest) throws OmpUtilsException {
         return excute(modifyTaskRequest,ModifyTaskResponse.class);
     }
 
+    public ModifyTargetResponse modifyTarget(ModifyTargetRequest modifyTargetRequest) throws OmpUtilsException {
+        return excute(modifyTargetRequest,ModifyTargetResponse.class);
+    }
+
     public DeleteTaskResponse deleteTask(DeleteTaskRequest deleteTaskRequest) throws OmpUtilsException {
         return excute(deleteTaskRequest,DeleteTaskResponse.class);
+    }
+
+    public DeleteTargetResponse deleteTarget(DeleteTargetRequest deleteTargetRequest) throws OmpUtilsException {
+        return excute(deleteTargetRequest,DeleteTargetResponse.class);
     }
 
     public StartTaskResponse startTask(StartTaskRequest startTaskRequest) throws OmpUtilsException {
