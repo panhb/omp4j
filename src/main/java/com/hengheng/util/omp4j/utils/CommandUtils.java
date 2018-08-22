@@ -1,9 +1,9 @@
 package com.hengheng.util.omp4j.utils;
 
+import cn.hutool.core.util.StrUtil;
 import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
-import com.xiaoleilu.hutool.log.Log;
-import com.xiaoleilu.hutool.log.LogFactory;
-import com.xiaoleilu.hutool.util.StrUtil;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -15,11 +15,17 @@ import java.io.UnsupportedEncodingException;
 /**
  * @author panhb
  */
+@Slf4j
 public class CommandUtils {
 
-    private final static Log log = LogFactory.get();
-
-    public static String excute(String commandPath, String[] arguments) throws OmpUtilsException {
+    /**
+     *
+     * @param commandPath
+     * @param arguments
+     * @return String
+     */
+    @SneakyThrows
+    public static String execute(String commandPath, String[] arguments) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
         CommandLine commandline = new CommandLine(commandPath);

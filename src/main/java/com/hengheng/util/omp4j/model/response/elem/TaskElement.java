@@ -1,5 +1,6 @@
 package com.hengheng.util.omp4j.model.response.elem;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.hengheng.util.omp4j.model.response.elem.comb.Progress;
 import com.hengheng.util.omp4j.model.response.elem.comb.TaskReport;
@@ -7,7 +8,6 @@ import com.hengheng.util.omp4j.model.response.elem.common.CommonResult;
 import com.hengheng.util.omp4j.model.response.elem.orig.Info;
 import com.hengheng.util.omp4j.model.response.elem.orig.Preference;
 import com.hengheng.util.omp4j.model.response.elem.orig.ReportCount;
-import com.xiaoleilu.hutool.util.StrUtil;
 import lombok.Data;
 
 import java.util.List;

@@ -1,7 +1,8 @@
 package com.hengheng.util.omp4j;
 
 import com.alibaba.fastjson.JSON;
-import com.hengheng.util.omp4j.model.ExcuteModel;
+import com.hengheng.util.omp4j.enums.ExecuteTypeEnum;
+import com.hengheng.util.omp4j.model.ExecuteModel;
 import com.hengheng.util.omp4j.model.request.filter.*;
 import com.hengheng.util.omp4j.model.request.filter.base.BaseFilter;
 import com.hengheng.util.omp4j.model.request.module.config.GetConfigsRequest;
@@ -21,8 +22,8 @@ import com.hengheng.util.omp4j.model.response.module.result.GetResultsResponse;
 import com.hengheng.util.omp4j.model.response.module.scanner.GetScannersResponse;
 import com.hengheng.util.omp4j.model.response.module.target.GetTargetsResponse;
 import com.hengheng.util.omp4j.model.response.module.task.*;
-import com.xiaoleilu.hutool.log.Log;
-import com.xiaoleilu.hutool.log.LogFactory;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,26 +32,26 @@ import java.util.UUID;
 /**
  * @author panhb
  */
+@Slf4j
 public class OMPClientTest {
 
-    private final static Log log = LogFactory.get();
+    private OMPClient ompClient;
 
-    OMPClient ompClient;
-
+    @SneakyThrows
     @Before
     public void initClient(){
-        ExcuteModel excuteModel = new ExcuteModel();
-        excuteModel.setUsername("admin");
-        excuteModel.setPassword("admin");
-
-
-
-//        ompClient = new OMPClient(excuteModel,OMPClient.CMD);
-        ompClient = new OMPClient(excuteModel,OMPClient.SSH);
+        ExecuteModel model = new ExecuteModel(ExecuteTypeEnum.SSH,
+                "admin", "admin");
+        model.setSshHost("52.81.25.26");
+        model.setSshPort(22);
+        model.setSshUser("ubuntu");
+        model.setSshPassphrase("a58e50b49cd8d90d");
+        ompClient = new OMPClient(model);
     }
 
+    @SneakyThrows
     @Test
-    public void createTaskTest() throws Exception {
+    public void createTaskTest() {
         CreateTaskRequest createTaskRequest = new CreateTaskRequest();
         CommonId target = new CommonId();
         CommonId config = new CommonId();
@@ -66,8 +67,9 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(createTaskResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void modifyTaskTest() throws Exception{
+    public void modifyTaskTest() {
         ModifyTaskRequest modifyTaskRequest = new ModifyTaskRequest();
         modifyTaskRequest.setTask_id("a733c5ef-d4cb-4546-9fac-cfa18292dd3f");
         modifyTaskRequest.setComment("20180115test");
@@ -75,41 +77,46 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(modifyTaskResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void deleteTaskTest() throws Exception{
+    public void deleteTaskTest() {
         DeleteTaskRequest deleteTaskRequest = new DeleteTaskRequest();
         deleteTaskRequest.setTask_id("b5080c48-41be-4c69-abd9-61f912f7e7aa");
         DeleteTaskResponse deleteTaskResponse = ompClient.deleteTask(deleteTaskRequest);
         log.info(JSON.toJSONString(deleteTaskResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void startTaskTest() throws Exception{
+    public void startTaskTest() {
         StartTaskRequest startTaskRequest = new StartTaskRequest();
         startTaskRequest.setTask_id("a733c5ef-d4cb-4546-9fac-cfa18292dd3f");
-        ompClient.getExcuteModel().setSshSleepSpec(1000L);
+        ompClient.setSshSleepSpec(1000L);
         StartTaskResponse startTaskResponse = ompClient.startTask(startTaskRequest);
         log.info(JSON.toJSONString(startTaskResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void stopTaskTest() throws Exception{
+    public void stopTaskTest() {
         StopTaskRequest stopTaskRequest = new StopTaskRequest();
         stopTaskRequest.setTask_id("a733c5ef-d4cb-4546-9fac-cfa18292dd3f");
         StopTaskResponse stopTaskResponse = ompClient.stopTask(stopTaskRequest);
         log.info(JSON.toJSONString(stopTaskResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void resumeTaskTest() throws Exception{
+    public void resumeTaskTest() {
         ResumeTaskRequest resumeTaskRequest = new ResumeTaskRequest();
         resumeTaskRequest.setTask_id("a733c5ef-d4cb-4546-9fac-cfa18292dd3f");
         ResumeTaskResponse resumeTaskResponse = ompClient.resumeTask(resumeTaskRequest);
         log.info(JSON.toJSONString(resumeTaskResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getTasksTest() throws Exception{
+    public void getTasksTest() {
         GetTasksRequest getTasksRequest = new GetTasksRequest();
         TaskFilter taskFilter = new TaskFilter();
         initBaseFilter(taskFilter);
@@ -119,8 +126,9 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(getTasksResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getConfigsTest() throws Exception{
+    public void getConfigsTest() {
         GetConfigsRequest getConfigsRequest = new GetConfigsRequest();
         ConfigFilter configFilter = new ConfigFilter();
         initBaseFilter(configFilter);
@@ -130,8 +138,9 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(getConfigsResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getReportFormatsTest() throws Exception{
+    public void getReportFormatsTest() {
         GetReportFormatsRequest getReportFormatsRequest = new GetReportFormatsRequest();
         ReportFormatFilter reportFormatFilter = new ReportFormatFilter();
         initBaseFilter(reportFormatFilter);
@@ -141,8 +150,9 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(getReportFormatsResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getResultsTest() throws Exception{
+    public void getResultsTest() {
         GetResultsRequest getResultsRequest = new GetResultsRequest();
         ResultFilter resultFilter = new ResultFilter();
         initBaseFilter(resultFilter);
@@ -152,8 +162,9 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(getResultsResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getScannersTest() throws Exception{
+    public void getScannersTest() {
         GetScannersRequest getScannersRequest = new GetScannersRequest();
         ScannerFilter scannerFilter = new ScannerFilter();
         initBaseFilter(scannerFilter);
@@ -163,8 +174,9 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(getScannersResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getTargetsTest() throws Exception{
+    public void getTargetsTest() {
         GetTargetsRequest getTargetsRequest = new GetTargetsRequest();
         TargetFilter targetFilter = new TargetFilter();
         initBaseFilter(targetFilter);
@@ -174,20 +186,22 @@ public class OMPClientTest {
         log.info(JSON.toJSONString(getTargetsResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getReportsTest() throws Exception{
+    public void getReportsTest() {
         GetReportsRequest getReportsRequest = new GetReportsRequest();
         ReportExtendFilter reportExtendFilter = new ReportExtendFilter();
         initBaseFilter(reportExtendFilter);
         getReportsRequest.setReport_filter(reportExtendFilter);
 
-        ompClient.getExcuteModel().setSshSleepSpec(2000L);
+        ompClient.setSshSleepSpec(2000L);
         GetReportsResponse getReportsResponse = ompClient.getReports(getReportsRequest);
         log.info(JSON.toJSONString(getReportsResponse));
     }
 
+    @SneakyThrows
     @Test
-    public void getPortListsTest() throws Exception{
+    public void getPortListsTest() {
         GetPortListsResponse getPortListsResponse = ompClient.getPortLists(new GetPortListsRequest());
         log.info(JSON.toJSONString(getPortListsResponse));
     }

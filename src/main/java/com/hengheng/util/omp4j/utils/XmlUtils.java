@@ -4,6 +4,7 @@ import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.XmlFriendlyNameCoder;
+import lombok.SneakyThrows;
 
 /**
  * @author panhb
@@ -30,15 +31,15 @@ public class XmlUtils {
         return xml;
     }
 
-    public static String xml2JSON(String xml) throws OmpUtilsException{
+    @SneakyThrows
+    public static String xml2JSON(String xml) {
+        XMLSerializer xmlSerializer = new XMLSerializer();
+        xmlSerializer.setTrimSpaces(true);
         try {
-            XMLSerializer xmlSerializer = new XMLSerializer();
-            xmlSerializer.setTrimSpaces(true);
             return xmlSerializer.read(xml).toString();
         }catch (Exception e){
-            throw new OmpUtilsException("xml转json错误，"+e.getMessage());
+            throw new OmpUtilsException("xml转json错误:"+e.getMessage());
         }
-
     }
 
 }

@@ -1,29 +1,28 @@
 package com.hengheng.util.omp4j.utils;
 
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.hengheng.util.omp4j.model.request.filter.ReportExtendFilter;
 import com.hengheng.util.omp4j.model.request.filter.ReportFilter;
 import com.hengheng.util.omp4j.model.request.module.report.GetReportsRequest;
-import com.xiaoleilu.hutool.log.Log;
-import com.xiaoleilu.hutool.log.LogFactory;
-import com.xiaoleilu.hutool.util.ArrayUtil;
-import com.xiaoleilu.hutool.util.StrUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
  * @author panhb
  */
+@Slf4j
 public class RefUtils {
-
-    private final static Log log = LogFactory.get();
 
     private static Field[] getFields(Class<?> model){
         String type = "class java.lang.Object";
         if(type.equals(model.toString())){
             return model.getDeclaredFields();
         }else{
-            return ArrayUtil.addAll(model.getDeclaredFields(),getFields(model.getSuperclass()));
+            return ArrayUtil.addAll(model.getDeclaredFields(), getFields(model.getSuperclass()));
         }
     }
 
@@ -38,78 +37,90 @@ public class RefUtils {
             String simpleName = model.getClass().getSimpleName();
             String get = "Get",request = "Request";
             Field[] fields;
-            if(simpleName.startsWith(get) && simpleName.endsWith(request)){
+            if (simpleName.startsWith(get) && simpleName.endsWith(request)) {
                 String name = StrUtil.removeSuffix(simpleName,request);
                 name = StrUtil.toUnderlineCase(name).toLowerCase();
                 sb.append("<").append(name).append(" ");
-                fields = ArrayUtil.addAll(model.getClass().getDeclaredFields(),model.getClass().getSuperclass().getDeclaredFields());
-            }else{
+                fields = ArrayUtil.addAll(model.getClass().getDeclaredFields(),
+                        model.getClass().getSuperclass().getDeclaredFields());
+            } else {
                 fields = getFields(model.getClass());
             }
-            try{
-                for(Field field : fields) {
-                    field.setAccessible(true);
-                    String name = field.getName();
-                    // 获取属性类型
-                    String type = field.getGenericType().toString();
-                    String getMethodName = "get" + name.replaceFirst(name.substring(0, 1), name.substring(0, 1)
-                            .toUpperCase());
-                    if(name.endsWith("filter")){
-                        Method m = model.getClass().getMethod(getMethodName);
-                        Object object = m.invoke(model);
-                        if(object != null){
-                            sb.append(name).append("=\"").append(model2Str(m.invoke(model),false)).append("\" ");
-                        }
-                    }
-                    if (type.equals("class java.lang.String")) {
-                        Method m = model.getClass().getMethod(getMethodName);
-                        String value = (String) m.invoke(model);
-                        if (value != null) {
-                            if("sortReverse".equals(name)){
-                                sb.append("sort-reverse");
-                            }else{
-                                sb.append(name);
-                            }
-                            if(doubleQuotationMarks){
-                                sb.append("=\"").append(value).append("\" ");
-                            }else{
-                                sb.append("=").append(value).append(" ");
-                            }
-                        }
-                    }
-                    if (type.equals("class java.lang.Integer")) {
-                        Method m = model.getClass().getMethod(getMethodName);
-                        Integer value = (Integer) m.invoke(model);
-                        if (value != null) {
-                            sb.append(name);
-                            if(doubleQuotationMarks){
-                                sb.append("=\"").append(value).append("\" ");
-                            }else{
-                                sb.append("=").append(value).append(" ");
-                            }
-                        }
-                    }
-                    if (type.equals("class java.lang.Boolean")) {
-                        Method m = model.getClass().getMethod(getMethodName);
-                        Boolean value = (Boolean) m.invoke(model);
-                        if (value != null) {
-                            sb.append(name);
-                            if(doubleQuotationMarks){
-                                sb.append("=\"").append(value?1:0).append("\" ");
-                            }else{
-                                sb.append("=").append(value?1:0).append(" ");
-                            }
-                        }
-                    }
+            try {
+                for (Field field : fields) {
+                    sb = transferField(model, doubleQuotationMarks, field, sb);
                 }
             }catch (Exception e){
-                log.error(e);
+                log.error(e.getMessage(), e);
             }
             if(simpleName.startsWith(get) && simpleName.endsWith(request)){
                 sb.append("/>");
             }
         }
         return sb.toString();
+    }
+
+    private static StringBuilder transferField(Object model,boolean doubleQuotationMarks,
+                                               Field field, StringBuilder sb) throws NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException {
+        field.setAccessible(true);
+        String name = field.getName();
+        // 获取属性类型
+        String type = field.getGenericType().toString();
+        String methodName = getMethodName(name);
+        if(name.endsWith("filter")){
+            Method m = model.getClass().getMethod(methodName);
+            Object object = m.invoke(model);
+            if(object != null){
+                sb.append(name).append("=\"").append(model2Str(m.invoke(model),false)).append("\" ");
+            }
+        }
+        if (type.equals("class java.lang.String")) {
+            Method m = model.getClass().getMethod(methodName);
+            String value = (String) m.invoke(model);
+            if (value != null) {
+                if("sortReverse".equals(name)){
+                    sb.append("sort-reverse");
+                }else{
+                    sb.append(name);
+                }
+                if(doubleQuotationMarks){
+                    sb.append("=\"").append(value).append("\" ");
+                }else{
+                    sb.append("=").append(value).append(" ");
+                }
+            }
+        }
+        if (type.equals("class java.lang.Integer")) {
+            Method m = model.getClass().getMethod(methodName);
+            Integer value = (Integer) m.invoke(model);
+            if (value != null) {
+                sb.append(name);
+                if(doubleQuotationMarks){
+                    sb.append("=\"").append(value).append("\" ");
+                }else{
+                    sb.append("=").append(value).append(" ");
+                }
+            }
+        }
+        if (type.equals("class java.lang.Boolean")) {
+            Method m = model.getClass().getMethod(methodName);
+            Boolean value = (Boolean) m.invoke(model);
+            if (value != null) {
+                sb.append(name);
+                if(doubleQuotationMarks){
+                    sb.append("=\"").append(value ? 1 : 0).append("\" ");
+                }else{
+                    sb.append("=").append(value ? 1 : 0).append(" ");
+                }
+            }
+        }
+        return sb;
+    }
+
+    private static String getMethodName(String name) {
+        return "get" + name.replaceFirst(name.substring(0, 1), name.substring(0, 1)
+                .toUpperCase());
     }
 
     public static void main(String[] args) {

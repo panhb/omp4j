@@ -5,5 +5,5 @@ import com.hengheng.util.omp4j.model.base.BaseModel;
 /**
  * @author panhb
  */
-public class BaseRequest extends BaseModel{
+public class BaseRequest extends BaseModel {
 }

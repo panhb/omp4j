@@ -1,8 +1,10 @@
 package com.hengheng.util.omp4j;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
-import com.hengheng.util.omp4j.model.ExcuteModel;
+import com.hengheng.util.omp4j.enums.ExecuteTypeEnum;
+import com.hengheng.util.omp4j.model.ExecuteModel;
 import com.hengheng.util.omp4j.model.request.base.BaseRequest;
 import com.hengheng.util.omp4j.model.request.module.config.GetConfigsRequest;
 import com.hengheng.util.omp4j.model.request.module.portlist.GetPortListsRequest;
@@ -26,119 +28,154 @@ import com.hengheng.util.omp4j.model.response.module.target.DeleteTargetResponse
 import com.hengheng.util.omp4j.model.response.module.target.GetTargetsResponse;
 import com.hengheng.util.omp4j.model.response.module.target.ModifyTargetResponse;
 import com.hengheng.util.omp4j.model.response.module.task.*;
-import com.hengheng.util.omp4j.service.ExcuteCmd;
-import com.hengheng.util.omp4j.service.ExcuteCmdFactory;
+import com.hengheng.util.omp4j.service.ExecuteCmd;
+import com.hengheng.util.omp4j.service.ExecuteCmdFactory;
+import com.hengheng.util.omp4j.service.IExecuteFactory;
+import com.hengheng.util.omp4j.service.SshExecuteCmdFactory;
 import com.hengheng.util.omp4j.utils.RefUtils;
 import com.hengheng.util.omp4j.utils.XmlUtils;
-import com.xiaoleilu.hutool.log.Log;
-import com.xiaoleilu.hutool.log.LogFactory;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author panhb
  */
+@Slf4j
 public class OMPClient {
 
-    private final static Log log = LogFactory.get();
+    /**
+     * 执行命令参数
+     */
+    private ExecuteModel model;
 
-    public final static String SSH = "ssh";
-    public final static String CMD = "cmd";
+    /**
+     * 执行命令实例
+     */
+    private ExecuteCmd cmd;
 
-    private ExcuteModel excuteModel;
-    private ExcuteCmd excuteCmd;
-
-    public ExcuteModel getExcuteModel() {
-        return excuteModel;
+    public void setSshSleepSpec(long millisecond) {
+        model.setSshSleepSpec(millisecond);
     }
 
-    public OMPClient(ExcuteModel excuteModel, String type) {
-        this.excuteModel = excuteModel;
-        this.excuteCmd = ExcuteCmdFactory.getInstance(type);
-    }
-
-    public CreateTaskResponse createTask(CreateTaskRequest createTaskRequest) throws OmpUtilsException {
-        return excute(createTaskRequest,CreateTaskResponse.class);
-    }
-
-    public CreateTargetResponse createTarget(CreateTargetRequest createTargetRequest) throws OmpUtilsException {
-        return excute(createTargetRequest,CreateTargetResponse.class);
-    }
-
-    public ModifyTaskResponse modifyTask(ModifyTaskRequest modifyTaskRequest) throws OmpUtilsException {
-        return excute(modifyTaskRequest,ModifyTaskResponse.class);
-    }
-
-    public ModifyTargetResponse modifyTarget(ModifyTargetRequest modifyTargetRequest) throws OmpUtilsException {
-        return excute(modifyTargetRequest,ModifyTargetResponse.class);
-    }
-
-    public DeleteTaskResponse deleteTask(DeleteTaskRequest deleteTaskRequest) throws OmpUtilsException {
-        return excute(deleteTaskRequest,DeleteTaskResponse.class);
-    }
-
-    public DeleteTargetResponse deleteTarget(DeleteTargetRequest deleteTargetRequest) throws OmpUtilsException {
-        return excute(deleteTargetRequest,DeleteTargetResponse.class);
-    }
-
-    public StartTaskResponse startTask(StartTaskRequest startTaskRequest) throws OmpUtilsException {
-        return excute(startTaskRequest,StartTaskResponse.class);
-    }
-
-    public StopTaskResponse stopTask(StopTaskRequest stopTaskRequest) throws OmpUtilsException {
-        return excute(stopTaskRequest,StopTaskResponse.class);
-    }
-
-    public ResumeTaskResponse resumeTask(ResumeTaskRequest resumeTaskRequest) throws OmpUtilsException {
-        return excute(resumeTaskRequest,ResumeTaskResponse.class);
-    }
-
-    public GetTasksResponse getTasks(GetTasksRequest getTasksRequest) throws OmpUtilsException {
-        return excute(getTasksRequest,true,GetTasksResponse.class);
-    }
-
-    public GetConfigsResponse getConfigs(GetConfigsRequest getConfigsRequest) throws OmpUtilsException {
-        return excute(getConfigsRequest,true,GetConfigsResponse.class);
-    }
-
-    public GetReportFormatsResponse getReportFormats(GetReportFormatsRequest getReportFormatsRequest) throws OmpUtilsException {
-        return excute(getReportFormatsRequest,true,GetReportFormatsResponse.class);
-    }
-
-    public GetResultsResponse getResults(GetResultsRequest getResultsRequest) throws OmpUtilsException {
-        return excute(getResultsRequest,true,GetResultsResponse.class);
-    }
-
-    public GetScannersResponse getScanners(GetScannersRequest getScannersRequest) throws OmpUtilsException {
-        return excute(getScannersRequest,true,GetScannersResponse.class);
-    }
-
-    public GetTargetsResponse getTargets(GetTargetsRequest getTargetsRequest) throws OmpUtilsException {
-        return excute(getTargetsRequest,true,GetTargetsResponse.class);
-    }
-
-    public GetReportsResponse getReports(GetReportsRequest getReportsRequest) throws OmpUtilsException {
-        return excute(getReportsRequest,true,GetReportsResponse.class);
-    }
-
-    public GetPortListsResponse getPortLists(GetPortListsRequest getPortListsRequest) throws OmpUtilsException {
-        return excute(getPortListsRequest,true,GetPortListsResponse.class);
-    }
-
-    private <T> T excute(BaseRequest baseRequest,Class<T> tClass) throws OmpUtilsException {
-        return excute(baseRequest,false,tClass);
-    }
-
-    private <T> T excute(BaseRequest baseRequest,Boolean filter,Class<T> tClass) throws OmpUtilsException {
-        String cmd;
-        if(filter){
-            cmd = RefUtils.model2Str(baseRequest);
-        }else{
-            cmd = XmlUtils.obj2Xml(baseRequest);
+    @SneakyThrows
+    public OMPClient(ExecuteModel model) {
+        this.model = model;
+        IExecuteFactory executeFactory = null;
+        if (ExecuteTypeEnum.SSH.equals(model.getType())) {
+            executeFactory = new SshExecuteCmdFactory();
+        } else if (ExecuteTypeEnum.CMD.equals(model.getType())) {
+            executeFactory = new ExecuteCmdFactory();
         }
-        excuteModel.setXmlCmd(cmd);
-        String xml = excuteCmd.excuteCmd(excuteModel);
-        excuteModel.setSshSleepSpec(null);
-        String json = XmlUtils.xml2JSON(xml);
-        return JSON.parseObject(json,tClass);
+        this.cmd = executeFactory.getExecuteCmd();
+    }
+
+    @SneakyThrows
+    public CreateTaskResponse createTask(CreateTaskRequest createTaskRequest) {
+        return execute(createTaskRequest,CreateTaskResponse.class);
+    }
+
+    @SneakyThrows
+    public CreateTargetResponse createTarget(CreateTargetRequest createTargetRequest) {
+        return execute(createTargetRequest,CreateTargetResponse.class);
+    }
+
+    @SneakyThrows
+    public ModifyTaskResponse modifyTask(ModifyTaskRequest modifyTaskRequest) {
+        return execute(modifyTaskRequest,ModifyTaskResponse.class);
+    }
+
+    @SneakyThrows
+    public ModifyTargetResponse modifyTarget(ModifyTargetRequest modifyTargetRequest) {
+        return execute(modifyTargetRequest,ModifyTargetResponse.class);
+    }
+
+    @SneakyThrows
+    public DeleteTaskResponse deleteTask(DeleteTaskRequest deleteTaskRequest) {
+        return execute(deleteTaskRequest,DeleteTaskResponse.class);
+    }
+
+    @SneakyThrows
+    public DeleteTargetResponse deleteTarget(DeleteTargetRequest deleteTargetRequest) {
+        return execute(deleteTargetRequest,DeleteTargetResponse.class);
+    }
+
+    @SneakyThrows
+    public StartTaskResponse startTask(StartTaskRequest startTaskRequest) {
+        return execute(startTaskRequest,StartTaskResponse.class);
+    }
+
+    @SneakyThrows
+    public StopTaskResponse stopTask(StopTaskRequest stopTaskRequest) {
+        return execute(stopTaskRequest,StopTaskResponse.class);
+    }
+
+    @SneakyThrows
+    public ResumeTaskResponse resumeTask(ResumeTaskRequest resumeTaskRequest) {
+        return execute(resumeTaskRequest,ResumeTaskResponse.class);
+    }
+
+    @SneakyThrows
+    public GetTasksResponse getTasks(GetTasksRequest getTasksRequest) {
+        return execute(getTasksRequest,true,GetTasksResponse.class);
+    }
+
+    @SneakyThrows
+    public GetConfigsResponse getConfigs(GetConfigsRequest getConfigsRequest) {
+        return execute(getConfigsRequest,true,GetConfigsResponse.class);
+    }
+
+    @SneakyThrows
+    public GetReportFormatsResponse getReportFormats(GetReportFormatsRequest getReportFormatsRequest) {
+        return execute(getReportFormatsRequest,true,GetReportFormatsResponse.class);
+    }
+
+    @SneakyThrows
+    public GetResultsResponse getResults(GetResultsRequest getResultsRequest) {
+        return execute(getResultsRequest,true,GetResultsResponse.class);
+    }
+
+    @SneakyThrows
+    public GetScannersResponse getScanners(GetScannersRequest getScannersRequest) {
+        return execute(getScannersRequest,true,GetScannersResponse.class);
+    }
+
+    @SneakyThrows
+    public GetTargetsResponse getTargets(GetTargetsRequest getTargetsRequest) {
+        return execute(getTargetsRequest,true,GetTargetsResponse.class);
+    }
+
+    @SneakyThrows
+    public GetReportsResponse getReports(GetReportsRequest getReportsRequest) {
+        return execute(getReportsRequest,true,GetReportsResponse.class);
+    }
+
+    @SneakyThrows
+    public GetPortListsResponse getPortLists(GetPortListsRequest getPortListsRequest) {
+        return execute(getPortListsRequest,true,GetPortListsResponse.class);
+    }
+
+    @SneakyThrows
+    private <T> T execute(BaseRequest baseRequest,Class<T> tClass) {
+        return execute(baseRequest,false,tClass);
+    }
+
+    @SneakyThrows
+    private <T> T execute(BaseRequest baseRequest,Boolean filter,Class<T> tClass) {
+        String command;
+        if(filter){
+            command = RefUtils.model2Str(baseRequest);
+        }else{
+            command = XmlUtils.obj2Xml(baseRequest);
+        }
+        String xml = this.cmd.executeCmd(model, command);
+        if (ObjectUtil.isNotNull(model.getSshSleepSpec())) {
+            model.setSshSleepSpec(0L);
+        }
+        if (StrUtil.isNotBlank(xml)) {
+            String json = XmlUtils.xml2JSON(xml);
+            return JSON.parseObject(json,tClass);
+        }
+        return null;
     }
 
 }
