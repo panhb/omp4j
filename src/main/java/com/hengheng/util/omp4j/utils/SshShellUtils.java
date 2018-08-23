@@ -53,9 +53,10 @@ public class SshShellUtils {
 			//获取输入流和输出流
 			@Cleanup InputStream instream = channel.getInputStream();
 			@Cleanup OutputStream outstream = channel.getOutputStream();
-			//异步执行，获取返回结果要睡眠
-			sleep(sleepTime);
+            //发送命令
 			sendCommand(shellCommand, outstream);
+            //异步执行，获取返回结果要睡眠
+            sleep(sleepTime);
 			//获取命令执行的结果
 			result = getResult(instream);
 			disconnect(session, channel);
