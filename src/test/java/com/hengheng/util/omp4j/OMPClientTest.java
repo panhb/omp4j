@@ -37,7 +37,6 @@ public class OMPClientTest {
 
     private OMPClient ompClient;
 
-    @SneakyThrows
     @Before
     public void initClient(){
         ExecuteModel model = new ExecuteModel(ExecuteTypeEnum.SSH,

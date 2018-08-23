@@ -57,7 +57,6 @@ public class OMPClient {
         model.setSshSleepSpec(millisecond);
     }
 
-    @SneakyThrows
     public OMPClient(ExecuteModel model) {
         this.model = model;
         IExecuteFactory executeFactory = null;

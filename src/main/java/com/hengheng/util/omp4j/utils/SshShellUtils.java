@@ -140,7 +140,11 @@ public class SshShellUtils {
 		session.setConfig("StrictHostKeyChecking", "no");
 		session.setConfig("max_input_buffer_size", ""+Integer.MAX_VALUE);
 		//设置登陆超时时间
-		session.connect(connectTimeout);
+		try {
+			session.connect(connectTimeout);
+		} catch (JSchException e) {
+			throw new OmpUtilsException("session连接超时:" + e.getMessage());
+		}
 		return session;
 	}
 
@@ -158,12 +162,16 @@ public class SshShellUtils {
 		try {
 			channel = session.openChannel(type);
 		} catch (JSchException e) {
-			throw new OmpUtilsException("打开channel错误:"+e.getMessage());
+			throw new OmpUtilsException("打开channel错误:" + e.getMessage());
 		}
 		if (channel == null) {
 			throw new OmpUtilsException("channel is null");
 		}
-		channel.connect(connectTimeout);
+		try {
+			channel.connect(connectTimeout);
+		} catch (JSchException e) {
+			throw new OmpUtilsException("channel连接超时:" + e.getMessage());
+		}
 		return channel;
 	}
 
