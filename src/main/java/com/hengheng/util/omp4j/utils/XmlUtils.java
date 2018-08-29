@@ -15,7 +15,7 @@ public class XmlUtils {
         return obj2Xml(object,false);
     }
 
-    public static String obj2Xml(Object object,Boolean format){
+    private static String obj2Xml(Object object, Boolean format){
         //解决下划线_变__问题
         XStream xStream = new XStream(new DomDriver(null,new XmlFriendlyNameCoder("_-", "_")));
         xStream.autodetectAnnotations(true);
