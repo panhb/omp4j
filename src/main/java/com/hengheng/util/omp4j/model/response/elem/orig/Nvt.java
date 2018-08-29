@@ -3,14 +3,12 @@ package com.hengheng.util.omp4j.model.response.elem.orig;
 import com.hengheng.util.omp4j.model.base.BaseModel;
 import com.hengheng.util.omp4j.utils.RefUtils;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * @author panhb
  */
-@Slf4j
 @Data
 public class Nvt extends BaseModel {
 
