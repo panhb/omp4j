@@ -32,13 +32,13 @@ public class XmlUtils {
     }
 
     @SneakyThrows
-    public static String xml2JSON(String xml) {
+    public static String xml2Json(String xml) {
         XMLSerializer xmlSerializer = new XMLSerializer();
         xmlSerializer.setTrimSpaces(true);
         try {
             return xmlSerializer.read(xml).toString();
         }catch (Exception e){
-            throw new OmpUtilsException("xml转json错误:"+e.getMessage());
+            throw new OmpUtilsException("xml转json错误:"+e.getMessage(), e);
         }
     }
 

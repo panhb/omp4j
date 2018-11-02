@@ -90,7 +90,7 @@ public class OMPClientTest {
     public void startTaskTest() {
         StartTaskRequest startTaskRequest = new StartTaskRequest();
         startTaskRequest.setTask_id("a733c5ef-d4cb-4546-9fac-cfa18292dd3f");
-        ompClient.setSshSleepSpec(1000L);
+        startTaskRequest.setSleepMillisecond(1000L);
         StartTaskResponse startTaskResponse = ompClient.startTask(startTaskRequest);
         log.info(JSON.toJSONString(startTaskResponse));
     }
@@ -192,8 +192,7 @@ public class OMPClientTest {
         ReportExtendFilter reportExtendFilter = new ReportExtendFilter();
         initBaseFilter(reportExtendFilter);
         getReportsRequest.setReport_filter(reportExtendFilter);
-
-        ompClient.setSshSleepSpec(2000L);
+        getReportsRequest.setSleepMillisecond(2000L);
         GetReportsResponse getReportsResponse = ompClient.getReports(getReportsRequest);
         log.info(JSON.toJSONString(getReportsResponse));
     }

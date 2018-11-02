@@ -19,7 +19,7 @@
         <logback.version>1.2.3</logback.version>
         <guava.version>26.0-jre</guava.version>
         <commons-lang3.version>3.7</commons-lang3.version>
-        <hutool.version>4.1.8</hutool.version>
+        <hutool.version>4.1.19</hutool.version>
         <json-lib.version>2.4</json-lib.version>
         <xom.version>1.2.5</xom.version>
         <lombok.version>1.18.2</lombok.version>

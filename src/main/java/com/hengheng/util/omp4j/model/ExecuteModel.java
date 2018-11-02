@@ -66,14 +66,4 @@ public class ExecuteModel extends BaseModel {
      */
     private String sshPassphrase;
 
-    /**
-     * 线程睡眠时间
-     */
-    private long sshSleep = 500L;
-
-    /**
-     * 线程睡眠时间,某些方法需要延长睡眠时间
-     */
-    private long sshSleepSpec;
-
 }

@@ -16,7 +16,7 @@ public class ExecuteCmdImpl implements ExecuteCmd {
 
     @SneakyThrows
     @Override
-    public String executeCmd(ExecuteModel model, String ompCmd) {
+    public String executeCmd(ExecuteModel model, String ompCmd, @Deprecated long sleep) {
         List<String> list = new ArrayList<>();
         list.add("-u");
         list.add(model.getUsername());

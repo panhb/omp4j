@@ -38,16 +38,12 @@ public class RefUtils {
         if(model != null){
             String simpleName = model.getClass().getSimpleName();
             String get = "Get",request = "Request";
-            Field[] fields;
             if (simpleName.startsWith(get) && simpleName.endsWith(request)) {
                 String name = StrUtil.removeSuffix(simpleName,request);
                 name = StrUtil.toUnderlineCase(name).toLowerCase();
                 sb.append("<").append(name).append(" ");
-                fields = ArrayUtil.addAll(model.getClass().getDeclaredFields(),
-                        model.getClass().getSuperclass().getDeclaredFields());
-            } else {
-                fields = getFields(model.getClass());
             }
+            Field[] fields = getFields(model.getClass());
             try {
                 for (Field field : fields) {
                     sb = transferField(model, doubleQuotationMarks, field, sb);
@@ -67,6 +63,10 @@ public class RefUtils {
             InvocationTargetException, IllegalAccessException {
         field.setAccessible(true);
         String name = field.getName();
+        String sleepMillisecond = "sleepMillisecond";
+        if (sleepMillisecond.equals(name)) {
+            return sb;
+        }
         // 获取属性类型
         String type = field.getGenericType().toString();
         String methodName = getMethodName(name);
@@ -80,6 +80,7 @@ public class RefUtils {
         }
         String strClass = "class java.lang.String",
                 intClass = "class java.lang.Integer",
+                longClass = "class java.lang.Long",
                 boolClass = "class java.lang.Boolean";
         if (strClass.equals(type)) {
             Method m = model.getClass().getMethod(methodName);
@@ -87,40 +88,41 @@ public class RefUtils {
             if (value != null) {
                 String sortReverse = "sortReverse";
                 if(sortReverse.equals(name)){
-                    sb.append("sort-reverse");
-                }else{
-                    sb.append(name);
+                    name = "sort-reverse";
                 }
-                if(doubleQuotationMarks){
-                    sb.append("=\"").append(value).append("\" ");
-                }else{
-                    sb.append("=").append(value).append(" ");
-                }
+                autoAppend(sb, doubleQuotationMarks, name, value);
             }
         }
         if (intClass.equals(type)) {
             Method m = model.getClass().getMethod(methodName);
             Integer value = (Integer) m.invoke(model);
             if (value != null) {
-                sb.append(name);
-                if(doubleQuotationMarks){
-                    sb.append("=\"").append(value).append("\" ");
-                }else{
-                    sb.append("=").append(value).append(" ");
-                }
+                autoAppend(sb, doubleQuotationMarks, name, value.toString());
+            }
+        }
+        if (longClass.equals(type)) {
+            Method m = model.getClass().getMethod(methodName);
+            Long value = (Long) m.invoke(model);
+            if (value != null) {
+                autoAppend(sb, doubleQuotationMarks, name, value.toString());
             }
         }
         if (boolClass.equals(type)) {
             Method m = model.getClass().getMethod(methodName);
             Boolean value = (Boolean) m.invoke(model);
             if (value != null) {
-                sb.append(name);
-                if(doubleQuotationMarks){
-                    sb.append("=\"").append(value ? 1 : 0).append("\" ");
-                }else{
-                    sb.append("=").append(value ? 1 : 0).append(" ");
-                }
+                autoAppend(sb, doubleQuotationMarks, name, value ? "1" : "0");
             }
+        }
+        return sb;
+    }
+
+    private static StringBuilder autoAppend(StringBuilder sb, boolean doubleQuotationMarks, String name, String value) {
+        sb.append(name);
+        if(doubleQuotationMarks){
+            sb.append("=\"").append(value).append("\" ");
+        }else{
+            sb.append("=").append(value).append(" ");
         }
         return sb;
     }
@@ -131,24 +133,25 @@ public class RefUtils {
     }
 
     public static TagsInfo getTagsInfo(String tags) {
-        if (StrUtil.isNotBlank(tags)) {
-            TagsInfo tagsInfo = new TagsInfo();
-            String[] tagList = StrUtil.split(tags, "|");
+        if (StrUtil.isBlank(tags)) {
+            return null;
+        }
+        TagsInfo tagsInfo = new TagsInfo();
+        String[] tagList = StrUtil.split(tags, "|");
+        try {
             for (String tag : tagList) {
                 int location = tag.indexOf("=");
                 if (location != -1) {
                     String name = tag.substring(0,location);
                     String value = tag.substring(location+1);
-                    try {
-                        invokeSet(tagsInfo, name, value);
-                    } catch (Exception e) {
-                        log.error("解析tags错误", e);
-                    }
+                    invokeSet(tagsInfo, name, value);
                 }
             }
-            return tagsInfo;
+        } catch (Exception e) {
+            log.error("解析tags错误", e);
+            return null;
         }
-        return null;
+        return tagsInfo;
     }
 
     @SneakyThrows
@@ -179,9 +182,9 @@ public class RefUtils {
         reportsRequest.setIgnore_pagination(true);
         reportsRequest.setFilter(reportFilter);
         reportsRequest.setReport_filter(reportExtendFilter);
+        reportsRequest.setSleepMillisecond(1000L);
 
         log.info(model2Str(reportsRequest));
-
 
         String tags = "cvss_base_vector=AV:N/AC:H/Au:N/C:P/I:N/A:N|summary=The remote SSH server is configured to allow weak MD5 and/or 96-bit MAC algorithms.|solution=Disable the weak MAC algorithms.|solution_type=Mitigation|qod_type=remote_active";
         log.info(getTagsInfo(tags).toString());

@@ -18,7 +18,7 @@ public class SshExecuteCmdImpl implements ExecuteCmd {
 
     @SneakyThrows
     @Override
-    public String executeCmd(ExecuteModel model, String ompCmd) {
+    public String executeCmd(ExecuteModel model, String ompCmd, long sleep) {
         StringBuilder sb = new StringBuilder("omp");
         sb.append(" ").append("-u").append(" ").append(model.getUsername());
         sb.append(" ").append("-w").append(" ").append(model.getPassword());
@@ -31,8 +31,7 @@ public class SshExecuteCmdImpl implements ExecuteCmd {
         sb.append(" ").append("-iX").append(" '").append(ompCmd).append("'");
         String result = SshShellUtils.sshShell(model.getSshHost(), model.getSshUser(),
                 model.getSshPort(), model.getSshPrivateKey(),
-                model.getSshPassphrase(), sb.toString(),
-                model.getSshSleepSpec() == 0L ? model.getSshSleep() : model.getSshSleepSpec());
+                model.getSshPassphrase(), sb.toString(), sleep);
         return getXml(result);
     }
 
@@ -52,14 +51,12 @@ public class SshExecuteCmdImpl implements ExecuteCmd {
             Matcher statusMatcher = statusPattern.matcher(info);
             Matcher endMatcher = endPattern.matcher(info);
             if(startMatcher.find() && statusMatcher.find()){
-                log.info("start:"+i);
                 flag = true;
             }
             if(flag){
                 sb.append(info.trim());
             }
             if(endMatcher.find()){
-                log.info("end:"+i);
                 break;
             }
         }

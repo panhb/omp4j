@@ -34,7 +34,7 @@ public class SshShellUtils {
 	 */
 	@SneakyThrows
 	public static String sshShell(String ip, String user, int port, String privateKey,
-								  String password, String shellCommand, Long sleepTime) {
+								  String password, String shellCommand, long sleepTime) {
 		if (jsch == null) {
 			jsch = new JSch();
 		}
@@ -61,7 +61,7 @@ public class SshShellUtils {
 			result = getResult(instream);
 			disconnect(session, channel);
 		} catch (IOException e) {
-			throw new OmpUtilsException("获取返回结果IO异常:"+e.getMessage());
+			throw new OmpUtilsException("获取返回结果IO异常:"+e.getMessage(), e);
 		}
 		return result;
 	}
@@ -84,7 +84,7 @@ public class SshShellUtils {
 					jsch.addIdentity(privateKey);
 				}
 			} catch (JSchException e) {
-				throw new OmpUtilsException("设置ssh连接密钥错误:"+e.getMessage());
+				throw new OmpUtilsException("设置ssh连接密钥错误:"+e.getMessage(), e);
 			}
 
 		}
@@ -127,7 +127,7 @@ public class SshShellUtils {
 				session = jsch.getSession(user, ip, port);
 			}
 		} catch (JSchException e) {
-			throw new OmpUtilsException("获取session错误:"+e.getMessage());
+			throw new OmpUtilsException("获取session错误:"+e.getMessage(), e);
 		}
 		if (session == null) {
 			throw new OmpUtilsException("session is null");
@@ -144,7 +144,7 @@ public class SshShellUtils {
 		try {
 			session.connect(connectTimeout);
 		} catch (JSchException e) {
-			throw new OmpUtilsException("session连接超时:" + e.getMessage());
+			throw new OmpUtilsException("session连接超时:" + e.getMessage(), e);
 		}
 		return session;
 	}
@@ -163,7 +163,7 @@ public class SshShellUtils {
 		try {
 			channel = session.openChannel(type);
 		} catch (JSchException e) {
-			throw new OmpUtilsException("打开channel错误:" + e.getMessage());
+			throw new OmpUtilsException("打开channel错误:" + e.getMessage(), e);
 		}
 		if (channel == null) {
 			throw new OmpUtilsException("channel is null");
@@ -171,7 +171,7 @@ public class SshShellUtils {
 		try {
 			channel.connect(connectTimeout);
 		} catch (JSchException e) {
-			throw new OmpUtilsException("channel连接超时:" + e.getMessage());
+			throw new OmpUtilsException("channel连接超时:" + e.getMessage(), e);
 		}
 		return channel;
 	}
@@ -186,7 +186,7 @@ public class SshShellUtils {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			throw new OmpUtilsException("线程睡眠异常:"+e.getMessage());
+			throw new OmpUtilsException("线程睡眠异常:"+e.getMessage(), e);
 		}
 	}
 

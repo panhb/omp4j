@@ -53,11 +53,16 @@ public class OMPClient {
      */
     private ExecuteCmd cmd;
 
-    public void setSshSleepSpec(long millisecond) {
-        model.setSshSleepSpec(millisecond);
-    }
+    /**
+     * SSH模式下线程睡眠时间
+     */
+    private static long sleep = 500L;
 
     public OMPClient(ExecuteModel model) {
+        this(model, sleep);
+    }
+
+    public OMPClient(ExecuteModel model, long sleepMillisecond) {
         this.model = model;
         IExecuteFactory executeFactory = null;
         if (ExecuteTypeEnum.SSH.equals(model.getType())) {
@@ -66,112 +71,111 @@ public class OMPClient {
             executeFactory = new ExecuteCmdFactory();
         }
         this.cmd = executeFactory.getExecuteCmd();
+        sleep = sleepMillisecond;
     }
 
     @SneakyThrows
     public CreateTaskResponse createTask(CreateTaskRequest createTaskRequest) {
-        return execute(createTaskRequest,CreateTaskResponse.class);
+        return execute(createTaskRequest, CreateTaskResponse.class);
     }
 
     @SneakyThrows
     public CreateTargetResponse createTarget(CreateTargetRequest createTargetRequest) {
-        return execute(createTargetRequest,CreateTargetResponse.class);
+        return execute(createTargetRequest, CreateTargetResponse.class);
     }
 
     @SneakyThrows
     public ModifyTaskResponse modifyTask(ModifyTaskRequest modifyTaskRequest) {
-        return execute(modifyTaskRequest,ModifyTaskResponse.class);
+        return execute(modifyTaskRequest, ModifyTaskResponse.class);
     }
 
     @SneakyThrows
     public ModifyTargetResponse modifyTarget(ModifyTargetRequest modifyTargetRequest) {
-        return execute(modifyTargetRequest,ModifyTargetResponse.class);
+        return execute(modifyTargetRequest, ModifyTargetResponse.class);
     }
 
     @SneakyThrows
     public DeleteTaskResponse deleteTask(DeleteTaskRequest deleteTaskRequest) {
-        return execute(deleteTaskRequest,DeleteTaskResponse.class);
+        return execute(deleteTaskRequest, DeleteTaskResponse.class);
     }
 
     @SneakyThrows
     public DeleteTargetResponse deleteTarget(DeleteTargetRequest deleteTargetRequest) {
-        return execute(deleteTargetRequest,DeleteTargetResponse.class);
+        return execute(deleteTargetRequest, DeleteTargetResponse.class);
     }
 
     @SneakyThrows
     public StartTaskResponse startTask(StartTaskRequest startTaskRequest) {
-        return execute(startTaskRequest,StartTaskResponse.class);
+        return execute(startTaskRequest, StartTaskResponse.class);
     }
 
     @SneakyThrows
     public StopTaskResponse stopTask(StopTaskRequest stopTaskRequest) {
-        return execute(stopTaskRequest,StopTaskResponse.class);
+        return execute(stopTaskRequest, StopTaskResponse.class);
     }
 
     @SneakyThrows
     public ResumeTaskResponse resumeTask(ResumeTaskRequest resumeTaskRequest) {
-        return execute(resumeTaskRequest,ResumeTaskResponse.class);
+        return execute(resumeTaskRequest, ResumeTaskResponse.class);
     }
 
     @SneakyThrows
     public GetTasksResponse getTasks(GetTasksRequest getTasksRequest) {
-        return execute(getTasksRequest,true,GetTasksResponse.class);
+        return execute(getTasksRequest,true, GetTasksResponse.class);
     }
 
     @SneakyThrows
     public GetConfigsResponse getConfigs(GetConfigsRequest getConfigsRequest) {
-        return execute(getConfigsRequest,true,GetConfigsResponse.class);
+        return execute(getConfigsRequest,true, GetConfigsResponse.class);
     }
 
     @SneakyThrows
     public GetReportFormatsResponse getReportFormats(GetReportFormatsRequest getReportFormatsRequest) {
-        return execute(getReportFormatsRequest,true,GetReportFormatsResponse.class);
+        return execute(getReportFormatsRequest,true, GetReportFormatsResponse.class);
     }
 
     @SneakyThrows
     public GetResultsResponse getResults(GetResultsRequest getResultsRequest) {
-        return execute(getResultsRequest,true,GetResultsResponse.class);
+        return execute(getResultsRequest,true, GetResultsResponse.class);
     }
 
     @SneakyThrows
     public GetScannersResponse getScanners(GetScannersRequest getScannersRequest) {
-        return execute(getScannersRequest,true,GetScannersResponse.class);
+        return execute(getScannersRequest,true, GetScannersResponse.class);
     }
 
     @SneakyThrows
     public GetTargetsResponse getTargets(GetTargetsRequest getTargetsRequest) {
-        return execute(getTargetsRequest,true,GetTargetsResponse.class);
+        return execute(getTargetsRequest,true, GetTargetsResponse.class);
     }
 
     @SneakyThrows
     public GetReportsResponse getReports(GetReportsRequest getReportsRequest) {
-        return execute(getReportsRequest,true,GetReportsResponse.class);
+        return execute(getReportsRequest,true, GetReportsResponse.class);
     }
 
     @SneakyThrows
     public GetPortListsResponse getPortLists(GetPortListsRequest getPortListsRequest) {
-        return execute(getPortListsRequest,true,GetPortListsResponse.class);
+        return execute(getPortListsRequest,true, GetPortListsResponse.class);
     }
 
     @SneakyThrows
-    private <T> T execute(BaseRequest baseRequest,Class<T> tClass) {
-        return execute(baseRequest,false,tClass);
+    private <T> T execute(BaseRequest baseRequest, Class<T> tClass) {
+        return execute(baseRequest,false, tClass);
     }
 
     @SneakyThrows
-    private <T> T execute(BaseRequest baseRequest,Boolean filter,Class<T> tClass) {
+    private <T> T execute(BaseRequest baseRequest, Boolean filter, Class<T> tClass) {
         String command;
         if(filter){
             command = RefUtils.model2Str(baseRequest);
         }else{
             command = XmlUtils.obj2Xml(baseRequest);
         }
-        String xml = this.cmd.executeCmd(model, command);
-        if (ObjectUtil.isNotNull(model.getSshSleepSpec())) {
-            model.setSshSleepSpec(0L);
-        }
+        String xml = this.cmd.executeCmd(model, command,
+                baseRequest.getSleepMillisecond() != null ? baseRequest.getSleepMillisecond() : sleep);
         if (StrUtil.isNotBlank(xml)) {
-            String json = XmlUtils.xml2JSON(xml);
+            String json = XmlUtils.xml2Json(xml);
             return JSON.parseObject(json,tClass);
         }
         return null;

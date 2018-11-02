@@ -13,9 +13,10 @@ public interface ExecuteCmd {
      *
      * @param model
      * @param ompCmd
+     * @param sleep
      * @return String
      * @throws OmpUtilsException
      */
-    String executeCmd(ExecuteModel model, String ompCmd) throws OmpUtilsException;
+    String executeCmd(ExecuteModel model, String ompCmd, long sleep) throws OmpUtilsException;
 
 }
