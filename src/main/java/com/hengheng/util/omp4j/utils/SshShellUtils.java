@@ -86,7 +86,6 @@ public class SshShellUtils {
 			} catch (JSchException e) {
 				throw new OmpUtilsException("设置ssh连接密钥错误:"+e.getMessage(), e);
 			}
-
 		}
 	}
 
@@ -103,7 +102,6 @@ public class SshShellUtils {
     private static Session getSession(String user, String ip, int port, int connectTimeout) {
 	    return getSession(user, null, ip, port, connectTimeout);
     }
-
 
     /**
      * 获取会话
@@ -127,7 +125,7 @@ public class SshShellUtils {
 				session = jsch.getSession(user, ip, port);
 			}
 		} catch (JSchException e) {
-			throw new OmpUtilsException("获取session错误:"+e.getMessage(), e);
+			throw new OmpUtilsException("获取session错误:" + e.getMessage(), e);
 		}
 		if (session == null) {
 			throw new OmpUtilsException("session is null");
@@ -139,7 +137,7 @@ public class SshShellUtils {
         }
 		//设置第一次登陆的时候提示，可选值：(ask | yes | no)
 		session.setConfig("StrictHostKeyChecking", "no");
-		session.setConfig("max_input_buffer_size", ""+Integer.MAX_VALUE);
+		session.setConfig("max_input_buffer_size", "" + Integer.MAX_VALUE);
 		//设置登陆超时时间
 		try {
 			session.connect(connectTimeout);
@@ -186,7 +184,7 @@ public class SshShellUtils {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			throw new OmpUtilsException("线程睡眠异常:"+e.getMessage(), e);
+			throw new OmpUtilsException("线程睡眠异常:" + e.getMessage(), e);
 		}
 	}
 

@@ -2,6 +2,7 @@ package com.hengheng.util.omp4j.utils;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
 import com.hengheng.util.omp4j.model.request.filter.ReportExtendFilter;
 import com.hengheng.util.omp4j.model.request.filter.ReportFilter;
 import com.hengheng.util.omp4j.model.request.module.report.GetReportsRequest;
@@ -10,7 +11,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -30,14 +30,13 @@ public class RefUtils {
 
     public static String model2Str(Object model) {
         return model2Str(model,true);
-
     }
 
     private static String model2Str(Object model, boolean doubleQuotationMarks) {
         StringBuilder sb = new StringBuilder();
         if(model != null){
             String simpleName = model.getClass().getSimpleName();
-            String get = "Get",request = "Request";
+            String get = "Get", request = "Request";
             if (simpleName.startsWith(get) && simpleName.endsWith(request)) {
                 String name = StrUtil.removeSuffix(simpleName,request);
                 name = StrUtil.toUnderlineCase(name).toLowerCase();
@@ -46,7 +45,7 @@ public class RefUtils {
             Field[] fields = getFields(model.getClass());
             try {
                 for (Field field : fields) {
-                    sb = transferField(model, doubleQuotationMarks, field, sb);
+                    transferField(model, doubleQuotationMarks, field, sb);
                 }
             }catch (Exception e){
                 log.error(e.getMessage(), e);
@@ -58,31 +57,32 @@ public class RefUtils {
         return sb.toString();
     }
 
+    @SneakyThrows
     private static StringBuilder transferField(Object model,boolean doubleQuotationMarks,
-                                               Field field, StringBuilder sb) throws NoSuchMethodException,
-            InvocationTargetException, IllegalAccessException {
+                                               Field field, StringBuilder sb) {
         field.setAccessible(true);
+        // 获取属性名
         String name = field.getName();
-        String sleepMillisecond = "sleepMillisecond";
-        if (sleepMillisecond.equals(name)) {
-            return sb;
-        }
         // 获取属性类型
         String type = field.getGenericType().toString();
         String methodName = getMethodName(name);
-        String filter = "filter";
-        if(name.endsWith(filter)){
-            Method m = model.getClass().getMethod(methodName);
-            Object object = m.invoke(model);
-            if(object != null){
-                sb.append(name).append("=\"").append(model2Str(m.invoke(model),false)).append("\" ");
-            }
-        }
-        String strClass = "class java.lang.String",
+        String sleepMillisecond = "sleepMillisecond",
+                filter = "filter",
+                strClass = "class java.lang.String",
                 intClass = "class java.lang.Integer",
                 longClass = "class java.lang.Long",
                 boolClass = "class java.lang.Boolean";
-        if (strClass.equals(type)) {
+        if (sleepMillisecond.equals(name)) {
+            // 特殊字段过滤
+        }
+        // 字段名已filter结尾的特殊处理
+        else if(name.endsWith(filter)){
+            Method m = model.getClass().getMethod(methodName);
+            Object object = m.invoke(model);
+            if(object != null){
+                sb.append(name).append("=\"").append(model2Str(object,false)).append("\" ");
+            }
+        } else if (strClass.equals(type)) {
             Method m = model.getClass().getMethod(methodName);
             String value = (String) m.invoke(model);
             if (value != null) {
@@ -92,27 +92,26 @@ public class RefUtils {
                 }
                 autoAppend(sb, doubleQuotationMarks, name, value);
             }
-        }
-        if (intClass.equals(type)) {
+        } else if (intClass.equals(type)) {
             Method m = model.getClass().getMethod(methodName);
             Integer value = (Integer) m.invoke(model);
             if (value != null) {
                 autoAppend(sb, doubleQuotationMarks, name, value.toString());
             }
-        }
-        if (longClass.equals(type)) {
+        } else if (longClass.equals(type)) {
             Method m = model.getClass().getMethod(methodName);
             Long value = (Long) m.invoke(model);
             if (value != null) {
                 autoAppend(sb, doubleQuotationMarks, name, value.toString());
             }
-        }
-        if (boolClass.equals(type)) {
+        } else if (boolClass.equals(type)) {
             Method m = model.getClass().getMethod(methodName);
             Boolean value = (Boolean) m.invoke(model);
             if (value != null) {
                 autoAppend(sb, doubleQuotationMarks, name, value ? "1" : "0");
             }
+        } else {
+            throw new OmpUtilsException("命令转换错误,不支持的类型:" + type + ",目前只支持:String,Integer,Long,Boolean");
         }
         return sb;
     }
@@ -142,8 +141,8 @@ public class RefUtils {
             for (String tag : tagList) {
                 int location = tag.indexOf("=");
                 if (location != -1) {
-                    String name = tag.substring(0,location);
-                    String value = tag.substring(location+1);
+                    String name = tag.substring(0, location);
+                    String value = tag.substring(location + 1);
                     invokeSet(tagsInfo, name, value);
                 }
             }

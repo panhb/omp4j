@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 public class CommandUtils {
 
     /**
+     * execute
      *
      * @param commandPath
      * @param arguments
@@ -40,14 +41,14 @@ public class CommandUtils {
         try {
             execute = exec.execute(commandline);
         } catch (IOException e) {
-            throw new OmpUtilsException("执行命令异常,cmd:"+commandline.toString()+","+e.getMessage(), e);
+            throw new OmpUtilsException("执行命令异常,cmd:" + commandline.toString() + "," + e.getMessage(), e);
         }
         String out,error;
         try {
             out = outputStream.toString("utf-8");
             error = errorStream.toString("utf-8");
         } catch (UnsupportedEncodingException e) {
-            throw new OmpUtilsException("命令执行获取返回值错误,"+e.getMessage(), e);
+            throw new OmpUtilsException("命令执行获取返回值错误," + e.getMessage(), e);
         }
         if(StrUtil.isNotBlank(error)){
             throw new OmpUtilsException(error);
@@ -60,7 +61,7 @@ public class CommandUtils {
             }
             return sb.toString();
         } else {
-            throw new OmpUtilsException("执行命令错误,cmd:"+commandline.toString());
+            throw new OmpUtilsException("执行命令错误,cmd:" + commandline.toString());
         }
     }
 }

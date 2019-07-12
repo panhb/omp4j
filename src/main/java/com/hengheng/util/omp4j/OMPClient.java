@@ -1,6 +1,5 @@
 package com.hengheng.util.omp4j;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.hengheng.util.omp4j.enums.ExecuteTypeEnum;
@@ -176,7 +175,7 @@ public class OMPClient {
                 baseRequest.getSleepMillisecond() != null ? baseRequest.getSleepMillisecond() : sleep);
         if (StrUtil.isNotBlank(xml)) {
             String json = XmlUtils.xml2Json(xml);
-            return JSON.parseObject(json,tClass);
+            return JSON.parseObject(json, tClass);
         }
         return null;
     }
