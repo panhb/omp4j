@@ -23,7 +23,7 @@
         <json-lib.version>2.4</json-lib.version>
         <xom.version>1.2.5</xom.version>
         <lombok.version>1.18.2</lombok.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
     </properties>
 
 
