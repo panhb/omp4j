@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author panhb
@@ -37,20 +40,20 @@ public class RefUtils {
         if(model != null){
             String simpleName = model.getClass().getSimpleName();
             String get = "Get", request = "Request";
-            if (simpleName.startsWith(get) && simpleName.endsWith(request)) {
+            boolean b = simpleName.startsWith(get) && simpleName.endsWith(request);
+            if (b) {
                 String name = StrUtil.removeSuffix(simpleName,request);
                 name = StrUtil.toUnderlineCase(name).toLowerCase();
                 sb.append("<").append(name).append(" ");
             }
             Field[] fields = getFields(model.getClass());
             try {
-                for (Field field : fields) {
-                    transferField(model, doubleQuotationMarks, field, sb);
-                }
+                Arrays.stream(fields).forEach(field ->
+                        transferField(model, doubleQuotationMarks, field, sb));
             }catch (Exception e){
                 log.error(e.getMessage(), e);
             }
-            if(simpleName.startsWith(get) && simpleName.endsWith(request)){
+            if(b){
                 sb.append("/>");
             }
         }
@@ -58,8 +61,8 @@ public class RefUtils {
     }
 
     @SneakyThrows
-    private static StringBuilder transferField(Object model,boolean doubleQuotationMarks,
-                                               Field field, StringBuilder sb) {
+    private static void transferField(Object model, boolean doubleQuotationMarks,
+                                      Field field, StringBuilder sb) {
         field.setAccessible(true);
         // 获取属性名
         String name = field.getName();
@@ -72,11 +75,8 @@ public class RefUtils {
                 intClass = "class java.lang.Integer",
                 longClass = "class java.lang.Long",
                 boolClass = "class java.lang.Boolean";
-        if (sleepMillisecond.equals(name)) {
-            // 特殊字段过滤
-        }
         // 字段名已filter结尾的特殊处理
-        else if(name.endsWith(filter)){
+        if(name.endsWith(filter)){
             Method m = model.getClass().getMethod(methodName);
             Object object = m.invoke(model);
             if(object != null){
@@ -111,19 +111,19 @@ public class RefUtils {
                 autoAppend(sb, doubleQuotationMarks, name, value ? "1" : "0");
             }
         } else {
-            throw new OmpUtilsException("命令转换错误,不支持的类型:" + type + ",目前只支持:String,Integer,Long,Boolean");
+            if (!sleepMillisecond.equals(name)) {
+                throw new OmpUtilsException("命令转换错误,不支持的类型:" + type + ",目前只支持:String,Integer,Long,Boolean");
+            }
         }
-        return sb;
     }
 
-    private static StringBuilder autoAppend(StringBuilder sb, boolean doubleQuotationMarks, String name, String value) {
+    private static void autoAppend(StringBuilder sb, boolean doubleQuotationMarks, String name, String value) {
         sb.append(name);
         if(doubleQuotationMarks){
             sb.append("=\"").append(value).append("\" ");
         }else{
             sb.append("=").append(value).append(" ");
         }
-        return sb;
     }
 
     private static String getMethodName(String name) {
@@ -136,16 +136,16 @@ public class RefUtils {
             return null;
         }
         TagsInfo tagsInfo = new TagsInfo();
-        String[] tagList = StrUtil.split(tags, "|");
+        List<String> tagList = StrUtil.split(tags, "|");
         try {
-            for (String tag : tagList) {
+            tagList.forEach(tag -> {
                 int location = tag.indexOf("=");
                 if (location != -1) {
                     String name = tag.substring(0, location);
                     String value = tag.substring(location + 1);
                     invokeSet(tagsInfo, name, value);
                 }
-            }
+            });
         } catch (Exception e) {
             log.error("解析tags错误", e);
             return null;
@@ -186,6 +186,6 @@ public class RefUtils {
         log.info(model2Str(reportsRequest));
 
         String tags = "cvss_base_vector=AV:N/AC:H/Au:N/C:P/I:N/A:N|summary=The remote SSH server is configured to allow weak MD5 and/or 96-bit MAC algorithms.|solution=Disable the weak MAC algorithms.|solution_type=Mitigation|qod_type=remote_active";
-        log.info(getTagsInfo(tags).toString());
+        log.info(Objects.requireNonNull(getTagsInfo(tags)).toString());
     }
 }

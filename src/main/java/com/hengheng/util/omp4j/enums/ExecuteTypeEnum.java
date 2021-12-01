@@ -23,12 +23,12 @@ public enum ExecuteTypeEnum {
 
     ;
 
-    private static Map<String, ExecuteTypeEnum> enumMap = new HashMap<>();
+    private static final Map<String, ExecuteTypeEnum> ENUM_MAP = new HashMap<>();
     private String code;
 
     static {
         for(ExecuteTypeEnum as : ExecuteTypeEnum.values()) {
-            enumMap.put(as.code, as);
+            ENUM_MAP.put(as.code, as);
         }
     }
 
@@ -37,7 +37,7 @@ public enum ExecuteTypeEnum {
     }
 
     public static ExecuteTypeEnum getByCode(String code) {
-        return  enumMap.get(code);
+        return ENUM_MAP.get(code);
     }
 
     public String getCode() {

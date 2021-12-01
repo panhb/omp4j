@@ -11,6 +11,7 @@ import org.apache.commons.exec.PumpStreamHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 /**
  * @author panhb
@@ -56,9 +57,7 @@ public class CommandUtils {
         if (execute == 0) {
             String[] infos = out.split("\n");
             StringBuilder sb = new StringBuilder();
-            for(String info : infos){
-                sb.append(info.trim());
-            }
+            Arrays.stream(infos).forEach(info -> sb.append(info.trim()));
             return sb.toString();
         } else {
             throw new OmpUtilsException("执行命令错误,cmd:" + commandline.toString());

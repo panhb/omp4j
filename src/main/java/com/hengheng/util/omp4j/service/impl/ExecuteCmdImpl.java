@@ -1,12 +1,12 @@
 package com.hengheng.util.omp4j.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.hengheng.util.omp4j.model.ExecuteModel;
 import com.hengheng.util.omp4j.service.ExecuteCmd;
 import com.hengheng.util.omp4j.utils.CommandUtils;
 import lombok.SneakyThrows;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +17,7 @@ public class ExecuteCmdImpl implements ExecuteCmd {
     @SneakyThrows
     @Override
     public String executeCmd(ExecuteModel model, String ompCmd, @Deprecated long sleep) {
-        List<String> list = new ArrayList<>();
+        List<String> list = Lists.newArrayList();
         list.add("-u");
         list.add(model.getUsername());
         list.add("-w");

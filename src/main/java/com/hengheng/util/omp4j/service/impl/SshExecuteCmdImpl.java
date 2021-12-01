@@ -44,19 +44,18 @@ public class SshExecuteCmdImpl implements ExecuteCmd {
         Pattern startPattern = Pattern.compile(startRegEx);
         Pattern statusPattern = Pattern.compile(statusRegEx);
         Pattern endPattern = Pattern.compile(endRegEx);
-        Boolean flag = false;
-        for(int i = 0 ; i < infos.length ; i++){
-            String info = infos[i];
+        boolean flag = false;
+        for (String info : infos) {
             Matcher startMatcher = startPattern.matcher(info);
             Matcher statusMatcher = statusPattern.matcher(info);
             Matcher endMatcher = endPattern.matcher(info);
-            if(startMatcher.find() && statusMatcher.find()){
+            if (startMatcher.find() && statusMatcher.find()) {
                 flag = true;
             }
-            if(flag){
+            if (flag) {
                 sb.append(info.trim());
             }
-            if(endMatcher.find()){
+            if (endMatcher.find()) {
                 break;
             }
         }

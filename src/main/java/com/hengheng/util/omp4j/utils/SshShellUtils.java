@@ -1,5 +1,6 @@
 package com.hengheng.util.omp4j.utils;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
 import com.jcraft.jsch.Channel;
@@ -41,26 +42,21 @@ public class SshShellUtils {
 		String result;
         Session session;
 		//设置密钥和密码
-        if (StrUtil.isNotBlank(privateKey)) {
-            addIdentity(privateKey, password);
-            //连接服务器
-            session = getSession(user, ip, port, 30000);
-        } else {
-            session = getSession(user, password, ip, port, 30000);
-        }
-		Channel channel = openChannel(session,"shell", 1000);
+		addIdentity(privateKey, password);
+		session = getSession(user, password, ip, port);
+		Channel channel = openChannel(session);
 		try {
 			//获取输入流和输出流
-			@Cleanup InputStream instream = channel.getInputStream();
-			@Cleanup OutputStream outstream = channel.getOutputStream();
+			@Cleanup InputStream inputStream = channel.getInputStream();
+			@Cleanup OutputStream outputStream = channel.getOutputStream();
             //发送命令
-			sendCommand(shellCommand, outstream);
+			sendCommand(shellCommand, outputStream);
             //异步执行，获取返回结果要睡眠
-            sleep(sleepTime);
+			Thread.sleep(sleepTime);
 			//获取命令执行的结果
-			result = getResult(instream);
+			result = getResult(inputStream);
 			disconnect(session, channel);
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			throw new OmpUtilsException("获取返回结果IO异常:"+e.getMessage(), e);
 		}
 		return result;
@@ -92,29 +88,14 @@ public class SshShellUtils {
     /**
      * 获取会话
      *
-     * @param user
-     * @param ip
-     * @param port
-     * @param connectTimeout
-     * @return Session
-     */
-    @SneakyThrows
-    private static Session getSession(String user, String ip, int port, int connectTimeout) {
-	    return getSession(user, null, ip, port, connectTimeout);
-    }
-
-    /**
-     * 获取会话
-     *
      * @param user 登陆主机的用户名
      * @param password 登陆主机的密码
      * @param ip
      * @param port
-     * @param connectTimeout
      * @return Session
      */
 	@SneakyThrows
-	private static Session getSession(String user, String password, String ip, int port, int connectTimeout) {
+	private static Session getSession(String user, String password, String ip, int port) {
 		Session session;
 		try {
 			if (port <= 0) {
@@ -140,7 +121,7 @@ public class SshShellUtils {
 		session.setConfig("max_input_buffer_size", "" + Integer.MAX_VALUE);
 		//设置登陆超时时间
 		try {
-			session.connect(connectTimeout);
+			session.connect(30000);
 		} catch (JSchException e) {
 			throw new OmpUtilsException("session连接超时:" + e.getMessage(), e);
 		}
@@ -151,15 +132,13 @@ public class SshShellUtils {
 	 * openChannel
 	 *
 	 * @param session
-	 * @param type
-	 * @param connectTimeout
 	 * @return Channel
 	 */
 	@SneakyThrows
-	private static Channel openChannel(Session session, String type, int connectTimeout) {
+	private static Channel openChannel(Session session) {
 		Channel channel;
 		try {
-			channel = session.openChannel(type);
+			channel = session.openChannel("shell");
 		} catch (JSchException e) {
 			throw new OmpUtilsException("打开channel错误:" + e.getMessage(), e);
 		}
@@ -167,7 +146,7 @@ public class SshShellUtils {
 			throw new OmpUtilsException("channel is null");
 		}
 		try {
-			channel.connect(connectTimeout);
+			channel.connect(1000);
 		} catch (JSchException e) {
 			throw new OmpUtilsException("channel连接超时:" + e.getMessage(), e);
 		}
@@ -175,35 +154,18 @@ public class SshShellUtils {
 	}
 
 	/**
-	 * sleep
-	 *
-	 * @param millis
-	 */
-	@SneakyThrows
-	private static void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			throw new OmpUtilsException("线程睡眠异常:" + e.getMessage(), e);
-		}
-	}
-
-	/**
 	 * getResult
 	 *
-	 * @param instream
+	 * @param inputStream
 	 */
 	@SneakyThrows
-	private static String getResult(InputStream instream) {
+	private static String getResult(InputStream inputStream) {
 		String result = "";
-		if (instream.available() > 0) {
-			byte[] data = new byte[instream.available()];
-			int nLen = instream.read(data);
-			if (nLen < 0) {
+		if (inputStream.available() > 0) {
+			result = IoUtil.readUtf8(inputStream);
+			if (StrUtil.isBlank(result)) {
 				throw new OmpUtilsException("network error.");
 			}
-			//转换输出结果并打印出来
-			result = new String(data, 0, nLen);
 		}
 		return result;
 	}
@@ -212,14 +174,14 @@ public class SshShellUtils {
 	 * sendCommand
 	 *
 	 * @param shellCommand
-	 * @param outstream
+	 * @param outputStream
 	 */
 	@SneakyThrows
-	private static void sendCommand(String shellCommand, OutputStream outstream) {
+	private static void sendCommand(String shellCommand, OutputStream outputStream) {
 		//发送需要执行的SHELL命令，需要用\n结尾，表示回车
 		shellCommand += " \n";
-		outstream.write(shellCommand.getBytes());
-		outstream.flush();
+		outputStream.write(shellCommand.getBytes());
+		outputStream.flush();
 	}
 
 	/**

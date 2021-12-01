@@ -6,28 +6,22 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.XmlFriendlyNameCoder;
 import lombok.SneakyThrows;
 
+import java.util.Arrays;
+
 /**
  * @author panhb
  */
 public class XmlUtils {
 
     public static String obj2Xml(Object object){
-        return obj2Xml(object,false);
-    }
-
-    private static String obj2Xml(Object object, Boolean format){
         //解决下划线_变__问题
         XStream xStream = new XStream(new DomDriver(null,new XmlFriendlyNameCoder("_-", "_")));
         xStream.autodetectAnnotations(true);
         String xml = xStream.toXML(object);
-        if(!format){
-            String[] infos = xml.split("\n");
-            StringBuilder sb = new StringBuilder();
-            for (String info : infos){
-                sb.append(info.trim());
-            }
-            xml = sb.toString();
-        }
+        String[] infos = xml.split("\n");
+        StringBuilder sb = new StringBuilder();
+        Arrays.stream(infos).forEach(info -> sb.append(info.trim()));
+        xml = sb.toString();
         return xml;
     }
 

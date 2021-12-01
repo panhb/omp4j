@@ -3,6 +3,7 @@ package com.hengheng.util.omp4j;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.hengheng.util.omp4j.enums.ExecuteTypeEnum;
+import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
 import com.hengheng.util.omp4j.model.ExecuteModel;
 import com.hengheng.util.omp4j.model.request.base.BaseRequest;
 import com.hengheng.util.omp4j.model.request.module.config.GetConfigsRequest;
@@ -16,6 +17,7 @@ import com.hengheng.util.omp4j.model.request.module.target.DeleteTargetRequest;
 import com.hengheng.util.omp4j.model.request.module.target.GetTargetsRequest;
 import com.hengheng.util.omp4j.model.request.module.target.ModifyTargetRequest;
 import com.hengheng.util.omp4j.model.request.module.task.*;
+import com.hengheng.util.omp4j.model.response.base.BaseResponse;
 import com.hengheng.util.omp4j.model.response.module.config.GetConfigsResponse;
 import com.hengheng.util.omp4j.model.response.module.protlist.GetPortListsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportFormatsResponse;
@@ -45,12 +47,12 @@ public class OMPClient {
     /**
      * 执行命令参数
      */
-    private ExecuteModel model;
+    private final ExecuteModel model;
 
     /**
      * 执行命令实例
      */
-    private ExecuteCmd cmd;
+    private final ExecuteCmd cmd;
 
     /**
      * SSH模式下线程睡眠时间
@@ -61,13 +63,16 @@ public class OMPClient {
         this(model, sleep);
     }
 
+    @SneakyThrows
     public OMPClient(ExecuteModel model, long sleepMillisecond) {
         this.model = model;
-        IExecuteFactory executeFactory = null;
+        IExecuteFactory executeFactory;
         if (ExecuteTypeEnum.SSH.equals(model.getType())) {
             executeFactory = new SshExecuteCmdFactory();
         } else if (ExecuteTypeEnum.CMD.equals(model.getType())) {
             executeFactory = new ExecuteCmdFactory();
+        } else {
+            throw new OmpUtilsException("错误的执行类型");
         }
         this.cmd = executeFactory.getExecuteCmd();
         sleep = sleepMillisecond;
@@ -159,12 +164,12 @@ public class OMPClient {
     }
 
     @SneakyThrows
-    private <T> T execute(BaseRequest baseRequest, Class<T> tClass) {
+    private <T extends BaseResponse> T execute(BaseRequest baseRequest, Class<T> tClass) {
         return execute(baseRequest,false, tClass);
     }
 
     @SneakyThrows
-    private <T> T execute(BaseRequest baseRequest, Boolean filter, Class<T> tClass) {
+    private <T extends BaseResponse> T execute(BaseRequest baseRequest, Boolean filter, Class<T> tClass) {
         String command;
         if(filter){
             command = RefUtils.model2Str(baseRequest);

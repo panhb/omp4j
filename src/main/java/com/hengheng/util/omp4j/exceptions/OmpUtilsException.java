@@ -7,9 +7,6 @@ public class OmpUtilsException extends Exception {
 
     private Throwable cause = null;
 
-    public OmpUtilsException() {
-    }
-
     public OmpUtilsException(String s) {
         super(s);
     }
