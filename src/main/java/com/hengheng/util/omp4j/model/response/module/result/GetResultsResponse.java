@@ -1,6 +1,6 @@
 package com.hengheng.util.omp4j.model.response.module.result;
 
-import com.hengheng.util.omp4j.model.response.base.ListResponse;
+import com.hengheng.util.omp4j.model.base.ListResponse;
 import com.hengheng.util.omp4j.model.response.elem.ResultElement;
 import com.hengheng.util.omp4j.model.response.elem.orig.Filtered;
 import com.hengheng.util.omp4j.model.response.elem.orig.MaxStart;

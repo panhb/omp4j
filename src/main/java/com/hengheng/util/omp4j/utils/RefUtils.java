@@ -3,10 +3,8 @@ package com.hengheng.util.omp4j.utils;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.hengheng.util.omp4j.exceptions.OmpUtilsException;
-import com.hengheng.util.omp4j.model.request.filter.ReportExtendFilter;
-import com.hengheng.util.omp4j.model.request.filter.ReportFilter;
-import com.hengheng.util.omp4j.model.request.module.report.GetReportsRequest;
-import com.hengheng.util.omp4j.model.response.elem.orig.TagsInfo;
+import com.hengheng.util.omp4j.model.request.report.GetReportsRequest;
+import com.hengheng.util.omp4j.model.response.elem.orig.Nvt;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -131,11 +129,11 @@ public class RefUtils {
                 .toUpperCase());
     }
 
-    public static TagsInfo getTagsInfo(String tags) {
+    public static Nvt.TagsInfo getTagsInfo(String tags) {
         if (StrUtil.isBlank(tags)) {
             return null;
         }
-        TagsInfo tagsInfo = new TagsInfo();
+        Nvt.TagsInfo tagsInfo = new Nvt.TagsInfo();
         List<String> tagList = StrUtil.split(tags, "|");
         try {
             tagList.forEach(tag -> {
@@ -154,7 +152,7 @@ public class RefUtils {
     }
 
     @SneakyThrows
-    private static void invokeSet(TagsInfo tagsInfo, String name, String value) {
+    private static void invokeSet(Nvt.TagsInfo tagsInfo, String name, String value) {
         String methodName = setMethodName(name);
         Method m = tagsInfo.getClass().getDeclaredMethod(methodName, String.class);
         m.invoke(tagsInfo, value);
@@ -166,12 +164,12 @@ public class RefUtils {
     }
 
     public static void main(String[] args) {
-        ReportFilter reportFilter = new ReportFilter();
+        GetReportsRequest.ReportFilter reportFilter = new GetReportsRequest.ReportFilter();
         reportFilter.setFirst(1);
         reportFilter.setRows(10);
         reportFilter.setTask_id("087bb973-6970-43d4-b29d-89e7d5b4285d");
 
-        ReportExtendFilter reportExtendFilter = new ReportExtendFilter();
+        GetReportsRequest.ReportExtendFilter reportExtendFilter = new GetReportsRequest.ReportExtendFilter();
         reportExtendFilter.setHigh(0);
         reportExtendFilter.setTask_id("087bb973-6970-43d4-b29d-89e7d5b4285d");
         reportExtendFilter.setTask(true);

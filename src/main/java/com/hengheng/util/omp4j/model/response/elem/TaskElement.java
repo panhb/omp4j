@@ -2,12 +2,10 @@ package com.hengheng.util.omp4j.model.response.elem;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.hengheng.util.omp4j.model.response.elem.comb.Progress;
-import com.hengheng.util.omp4j.model.response.elem.comb.TaskReport;
+import com.hengheng.util.omp4j.model.base.BaseModel;
+import com.hengheng.util.omp4j.model.response.elem.comb.Host;
 import com.hengheng.util.omp4j.model.response.elem.common.CommonResult;
-import com.hengheng.util.omp4j.model.response.elem.orig.Info;
 import com.hengheng.util.omp4j.model.response.elem.orig.Preference;
-import com.hengheng.util.omp4j.model.response.elem.orig.ReportCount;
 import lombok.Data;
 
 import java.util.List;
@@ -45,5 +43,60 @@ public class TaskElement extends CommonResult {
         return null;
     }
 
+    @Data
+    public static class Info extends BaseModel {
+
+        private String id;
+        private String name;
+        private String type;
+        private String trash;
+        private String next_time;
+
+    }
+
+    @Data
+    public static class ReportCount extends BaseModel{
+
+        private String text;
+        private String finished;
+
+    }
+
+    @Data
+    public static class Progress extends BaseModel{
+
+        private String text;
+        private Host host_progress;
+
+    }
+
+    @Data
+    public static class TaskReport extends BaseModel {
+
+        private TaskReportInfo report;
+
+        @Data
+        public static class TaskReportInfo extends BaseModel {
+
+            private String id;
+            private String timestamp;
+            private String scan_start;
+            private String scan_end;
+            private String severity;
+            private TaskResultCount result_count;
+
+            @Data
+            public static class TaskResultCount extends BaseModel{
+
+                private String debug;
+                private String hole;
+                private String info;
+                private String log;
+                private String warning;
+                private String false_positive;
+
+            }
+        }
+    }
 }
 

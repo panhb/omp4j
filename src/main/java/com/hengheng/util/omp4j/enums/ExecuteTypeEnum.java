@@ -1,5 +1,8 @@
 package com.hengheng.util.omp4j.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +12,8 @@ import java.util.Map;
  * @author hongbo.pan
  * @date 2018/8/22
  */
+@AllArgsConstructor
+@Getter
 public enum ExecuteTypeEnum {
 
     /**
@@ -32,16 +37,8 @@ public enum ExecuteTypeEnum {
         }
     }
 
-    ExecuteTypeEnum(String code) {
-        this.code = code;
-    }
-
     public static ExecuteTypeEnum getByCode(String code) {
         return ENUM_MAP.get(code);
-    }
-
-    public String getCode() {
-        return this.code;
     }
 
 }

@@ -3,17 +3,22 @@ package com.hengheng.util.omp4j;
 import com.alibaba.fastjson.JSON;
 import com.hengheng.util.omp4j.enums.ExecuteTypeEnum;
 import com.hengheng.util.omp4j.model.ExecuteModel;
-import com.hengheng.util.omp4j.model.request.filter.*;
-import com.hengheng.util.omp4j.model.request.filter.base.BaseFilter;
-import com.hengheng.util.omp4j.model.request.module.config.GetConfigsRequest;
-import com.hengheng.util.omp4j.model.request.module.portlist.GetPortListsRequest;
-import com.hengheng.util.omp4j.model.request.module.report.GetReportFormatsRequest;
-import com.hengheng.util.omp4j.model.request.module.report.GetReportsRequest;
-import com.hengheng.util.omp4j.model.request.module.result.GetResultsRequest;
-import com.hengheng.util.omp4j.model.request.module.scanner.GetScannersRequest;
-import com.hengheng.util.omp4j.model.request.module.target.GetTargetsRequest;
-import com.hengheng.util.omp4j.model.request.module.task.*;
-import com.hengheng.util.omp4j.model.request.common.CommonId;
+import com.hengheng.util.omp4j.model.base.BaseFilter;
+import com.hengheng.util.omp4j.model.request.config.GetConfigsRequest;
+import com.hengheng.util.omp4j.model.request.portlist.GetPortListsRequest;
+import com.hengheng.util.omp4j.model.request.report.GetReportFormatsRequest;
+import com.hengheng.util.omp4j.model.request.report.GetReportsRequest;
+import com.hengheng.util.omp4j.model.request.result.GetResultsRequest;
+import com.hengheng.util.omp4j.model.request.scanner.GetScannersRequest;
+import com.hengheng.util.omp4j.model.request.target.GetTargetsRequest;
+import com.hengheng.util.omp4j.model.base.CommonId;
+import com.hengheng.util.omp4j.model.request.task.CreateTaskRequest;
+import com.hengheng.util.omp4j.model.request.task.DeleteTaskRequest;
+import com.hengheng.util.omp4j.model.request.task.GetTasksRequest;
+import com.hengheng.util.omp4j.model.request.task.ModifyTaskRequest;
+import com.hengheng.util.omp4j.model.request.task.ResumeTaskRequest;
+import com.hengheng.util.omp4j.model.request.task.StartTaskRequest;
+import com.hengheng.util.omp4j.model.request.task.StopTaskRequest;
 import com.hengheng.util.omp4j.model.response.module.config.GetConfigsResponse;
 import com.hengheng.util.omp4j.model.response.module.protlist.GetPortListsResponse;
 import com.hengheng.util.omp4j.model.response.module.report.GetReportFormatsResponse;
@@ -117,7 +122,7 @@ public class OMPClientTest {
     @Test
     public void getTasksTest() {
         GetTasksRequest getTasksRequest = new GetTasksRequest();
-        TaskFilter taskFilter = new TaskFilter();
+        GetTasksRequest.TaskFilter taskFilter = new GetTasksRequest.TaskFilter();
         initBaseFilter(taskFilter);
         getTasksRequest.setFilter(taskFilter);
 
@@ -129,7 +134,7 @@ public class OMPClientTest {
     @Test
     public void getConfigsTest() {
         GetConfigsRequest getConfigsRequest = new GetConfigsRequest();
-        ConfigFilter configFilter = new ConfigFilter();
+        GetConfigsRequest.ConfigFilter configFilter = new GetConfigsRequest.ConfigFilter();
         initBaseFilter(configFilter);
         getConfigsRequest.setFilter(configFilter);
 
@@ -141,7 +146,7 @@ public class OMPClientTest {
     @Test
     public void getReportFormatsTest() {
         GetReportFormatsRequest getReportFormatsRequest = new GetReportFormatsRequest();
-        ReportFormatFilter reportFormatFilter = new ReportFormatFilter();
+        GetReportFormatsRequest.ReportFormatFilter reportFormatFilter = new GetReportFormatsRequest.ReportFormatFilter();
         initBaseFilter(reportFormatFilter);
         getReportFormatsRequest.setFilter(reportFormatFilter);
 
@@ -153,7 +158,7 @@ public class OMPClientTest {
     @Test
     public void getResultsTest() {
         GetResultsRequest getResultsRequest = new GetResultsRequest();
-        ResultFilter resultFilter = new ResultFilter();
+        GetResultsRequest.ResultFilter resultFilter = new GetResultsRequest.ResultFilter();
         initBaseFilter(resultFilter);
         getResultsRequest.setFilter(resultFilter);
 
@@ -165,7 +170,7 @@ public class OMPClientTest {
     @Test
     public void getScannersTest() {
         GetScannersRequest getScannersRequest = new GetScannersRequest();
-        ScannerFilter scannerFilter = new ScannerFilter();
+        GetScannersRequest.ScannerFilter scannerFilter = new GetScannersRequest.ScannerFilter();
         initBaseFilter(scannerFilter);
         getScannersRequest.setFilter(scannerFilter);
 
@@ -177,7 +182,7 @@ public class OMPClientTest {
     @Test
     public void getTargetsTest() {
         GetTargetsRequest getTargetsRequest = new GetTargetsRequest();
-        TargetFilter targetFilter = new TargetFilter();
+        GetTargetsRequest.TargetFilter targetFilter = new GetTargetsRequest.TargetFilter();
         initBaseFilter(targetFilter);
         getTargetsRequest.setFilter(targetFilter);
 
@@ -189,7 +194,7 @@ public class OMPClientTest {
     @Test
     public void getReportsTest() {
         GetReportsRequest getReportsRequest = new GetReportsRequest();
-        ReportExtendFilter reportExtendFilter = new ReportExtendFilter();
+        GetReportsRequest.ReportExtendFilter reportExtendFilter = new GetReportsRequest.ReportExtendFilter();
         initBaseFilter(reportExtendFilter);
         getReportsRequest.setReport_filter(reportExtendFilter);
         getReportsRequest.setSleepMillisecond(2000L);

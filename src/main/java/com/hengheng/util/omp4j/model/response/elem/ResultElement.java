@@ -1,9 +1,9 @@
 package com.hengheng.util.omp4j.model.response.elem;
 
+import com.hengheng.util.omp4j.model.base.BaseModel;
 import com.hengheng.util.omp4j.model.response.elem.comb.Host;
 import com.hengheng.util.omp4j.model.response.elem.common.CommonResult;
 import com.hengheng.util.omp4j.model.response.elem.orig.Nvt;
-import com.hengheng.util.omp4j.model.response.elem.orig.Qod;
 import lombok.Data;
 
 import java.util.List;
@@ -26,5 +26,12 @@ public class ResultElement extends CommonResult {
     private List<String> notes;
     private List<String> overrides;
 
+    @Data
+    public static class Qod extends BaseModel {
+
+        private String value;
+        private String type;
+
+    }
 }
 

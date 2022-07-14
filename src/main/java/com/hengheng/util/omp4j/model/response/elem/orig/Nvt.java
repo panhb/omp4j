@@ -27,5 +27,18 @@ public class Nvt extends BaseModel {
         return RefUtils.getTagsInfo(tags);
     }
 
+    @Data
+    public static class TagsInfo extends BaseModel {
+
+        private String cvss_base_vector;
+        private String vuldetect;
+        private String summary;
+        private String solution;
+        private String solution_type;
+        private String qod_type;
+        private String impact;
+        private String insight;
+
+    }
 }
 
