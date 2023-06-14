@@ -17,7 +17,7 @@
         <jsch.version>0.1.54</jsch.version>
         <slf4j.version>1.8.0-beta2</slf4j.version>
         <logback.version>1.2.3</logback.version>
-        <guava.version>26.0-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <hutool.version>5.7.16</hutool.version>
         <json-lib.version>2.4</json-lib.version>
